@@ -9,15 +9,6 @@
 
 int main() 
 {
-
-	{
-		Vector<std::string> v2;
-		v2.push_back("matt");
-		v2.print();
-		v2.push_back("yoshi");
-		v2.print();
-	}
-
 	{
 		Vector<int> v;
 		v.print();
@@ -48,6 +39,15 @@ int main()
 	}
 
 	{
+		Vector<std::string> v;
+		v.print();
+		v.push_back("matt");
+		v.print();
+		v.push_back("yoshi");
+		v.print();
+	}
+
+	{
 		Vector<char> v;
 		v.push_back('a');
 		assert(v[0] == 'a');
@@ -58,7 +58,18 @@ int main()
 			Vector<int> v;
 			v.front();
 			v.back();
-			v.shrink_to_fit();
+			v.push_back(1);
+			v.print();
+			v.resize(10);
+			v.print();
+			v.push_back(1);
+			v.print();
+	}
+
+	{
+		Vector<char> v;
+		v.resize(10);
+		v.print();
 	}
 	
 

@@ -8,21 +8,22 @@ template <class T>
 class Vector
 {
 	ArrayPointer<T> internalArray;
-	int internalSize = 0;
-	int maxSize = 0;
+	size_t internalSize = 0;
+	size_t maxSize = 0;
 	
 
 public:
-	T& operator[](int i);
-	T at(int i);
+	T& operator[](size_t i);
+	T at(size_t i);
 	T front();
 	T back();
-	int capacity();
+	size_t capacity();
 	void push_back(T data);
 	void pop_back();
 	//void insert(typename Vector<T>::iterator it, T data);
 	//void erase(typename Vector<T>::iterator it);
-	void resize(int newSize);
+	void resize(size_t newSize);
+	void reserve(size_t reserveSize);
 	void shrink_to_fit();
 	void print();
 
@@ -54,7 +55,7 @@ Vector<T>::Vector(const Vector<T>& other)
 	maxSize = other.maxSize;
 
 	internalArray = new T[maxSize];
-	for (int i = 0; i < internalSize; i++)
+	for (size_t i = 0; i < internalSize; i++)
 		internalArray[i] = other.internalArray[i];
 }
 
@@ -98,13 +99,13 @@ Vector<T>& Vector<T>::operator=(Vector<T>&& other)
 }
 
 template <class T>
-T& Vector<T>::operator[](int i)
+T& Vector<T>::operator[](size_t i)
 {
 	return internalArray[i];
 }
 
 template <class T>
-T Vector<T>::at(int i)
+T Vector<T>::at(size_t i)
 {
 	if (i > internalSize - 1) throw std::out_of_range("Out of range error");
 	return internalArray[i];
@@ -113,26 +114,28 @@ T Vector<T>::at(int i)
 template <class T>
 T Vector<T>::front()
 {
-	if(internalSize > 0) return internalArray[0];
+		if(internalSize > 0) return internalArray[0];
 }
 
 template <class T>
 T Vector<T>::back()
 {
-	if(internalSize > 0) return internalArray[internalSize - 1];
+	if (internalSize > 0) return internalArray[internalSize-1];
+
 }
 
 template <class T>
-int Vector<T>::capacity()
+size_t Vector<T>::capacity()
 {
 	return maxSize;
 }
 
 template <class T>
+
 void Vector<T>::push_back(T data)
 {
 	if (internalSize == maxSize)
-		resize(maxSize * 2 + 1);
+		reserve(maxSize * 2 + 1);
 
 	internalArray[internalSize] = data;
 	internalSize++;
@@ -142,14 +145,13 @@ template <class T>
 void Vector<T>::pop_back()
 {
 	if(internalSize > 0) internalSize--;
-	
 }
 
 template <class T>
 void Vector<T>::print()
 {
 	std::cout << '{';
-	for (int i = 0; i < internalSize; ++i)
+	for (size_t i = 0; i < internalSize; ++i)
 	{
 		std::cout << internalArray[i];
 
@@ -172,15 +174,37 @@ void Vector<T>::erase(typename Vector<T>::iterator it)
 }*/
 
 template <class T>
-void Vector<T>::resize(int size)
+void Vector<T>::resize(size_t size)
 {
-	internalSize = std::min(size, internalSize);
 	T *newArray = new T[size];
+	auto copySize = std::min(size, internalSize);
 
-	for (int i = 0; i < internalSize; ++i)
+	for (size_t i = 0; i < copySize; i++)
 		newArray[i] = internalArray[i];
 
-	maxSize = size;
+	if (size > maxSize)
+	{
+		for (size_t i = copySize; i < size; i++)
+			newArray[i] = T();
+	}
+
+	maxSize = internalSize = size;
+    internalArray = newArray;
+}
+
+template <class T>
+void Vector<T>::reserve(size_t reserveSize)
+{
+	if (reserveSize < maxSize)
+		return;
+
+	internalSize = std::min(reserveSize, internalSize);
+	T *newArray = new T[reserveSize];
+
+	for (size_t i = 0; i < internalSize; ++i)
+		newArray[i] = internalArray[i];
+
+	maxSize = reserveSize;
 	internalArray = newArray;
 }
 
