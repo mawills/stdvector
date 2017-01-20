@@ -1,47 +1,67 @@
 #include <iostream>
 #include <stdexcept>
-#include<memory>
+#include <memory>
+#include <vector>
+#include <assert.h>
 
 #include "Vector.h"
 #include "ArrayPointer.h"
 
-int main() {
+int main() 
+{
 
-	ArrayPointer<int> myPointer(new int[500]);
-	//int* thing = myPointer.get();
+	{
+		Vector<std::string> v2;
+		v2.push_back("matt");
+		v2.print();
+		v2.push_back("yoshi");
+		v2.print();
+	}
 
-	std::unique_ptr<int> p1(new int);
-	//std::unique_ptr<int> p2(p1);
-	std::unique_ptr<int> p3;
-	p3 = nullptr;
-	Vector<int> v;
-	v.push_back(1);
+	{
+		Vector<int> v;
+		v.print();
+		v.push_back(1);
+		v.print();
+		v.push_back(2);
+		v.print();
+		v.push_back(3);
+		v.print();
+		v.resize(2);
+		v.print();
+		v.pop_back();
+		v.print();
+		v.pop_back();
+		v.print();
+		v.pop_back();
+		v.print();
 
-	v[0] = 2;
+		v.push_back(1);
+		v.push_back(2);
+		v.push_back(3);
+		v.print();
+		std::cout << "front: " << v.front() << '\n';
+		std::cout << "back: " << v.back() << '\n';
+		std::cout << "capacity: " << v.capacity() << '\n';
+		v.shrink_to_fit();
+		std::cout << "capacity: " << v.capacity() << '\n';
+	}
 
-	v.resize(10);
+	{
+		Vector<char> v;
+		v.push_back('a');
+		assert(v[0] == 'a');
+		v.print();
+	}
 
-	v.print();
-	v.push_back(1);
-	v.print();
-	v.push_back(2);
-	v.print();
-	v.push_back(6);
-	v.print();
+	{
+			Vector<int> v;
+			v.front();
+			v.back();
+			v.shrink_to_fit();
+	}
+	
 
-	v.pop_back();
-	v.print();
-	v.push_back(3);
-	v.print();
 
-	std::cout << "at index 1: " << v.at(1) << " " << v[1] << std::endl;
-	Vector<int> v2;
-
-	v2 = v;
-	v2.print();
-	v.print();
-
-	v2[0] = 50;
-	v2.print();
-	v.print();
+	return 0;
 }

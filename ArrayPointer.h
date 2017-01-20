@@ -3,9 +3,13 @@
 template <class T>
 class ArrayPointer
 {
+
 	T* pointer = nullptr;
 
 public:
+
+	ArrayPointer<T>() {}
+
 	// C++ Rule of Five
 	ArrayPointer<T>(T* newPointer) { pointer = newPointer; }
 	// Destructor
@@ -19,8 +23,9 @@ public:
 	// Copy Assignment operator
 	ArrayPointer<T>& operator=(const ArrayPointer& other) = delete;
 	// Move Assignment operator
-	ArrayPointer<T>& operator=(ArrayPointer&& other);
+	void operator=(ArrayPointer&& other);
 
+	T& ArrayPointer<T>::operator[](int i);
 
 	T* get();
 	T* release();
@@ -29,14 +34,27 @@ public:
 };
 
 template <class T>
-ArrayPointer<T>::ArrayPointer(ArrayPointer<T>&& other) {
+T& ArrayPointer<T>::operator[](int i)
+{
+	return pointer[i];
+}
+
+template <class T>
+ArrayPointer<T>::ArrayPointer(ArrayPointer<T>&& other) 
+{
+	if (this == &other)
+		return;
+
 	*this = std::move(other);
 	return *this;
 }
 
 template <class T>
-ArrayPointer<T>& ArrayPointer<T>::operator=(ArrayPointer&& other)
+void ArrayPointer<T>::operator=(ArrayPointer&& other)
 {
+	if (this == &other)
+		return;
+
 	delete[] pointer;
 	pointer = other.pointer;
 	other.pointer = nullptr;

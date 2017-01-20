@@ -1,13 +1,16 @@
 #pragma once
 
+#include <string>
 #include <algorithm>
+#include "ArrayPointer.h"
 
 template <class T>
 class Vector
 {
-	T* internalArray = nullptr;
+	ArrayPointer<T> internalArray;
 	int internalSize = 0;
 	int maxSize = 0;
+	
 
 public:
 	T& operator[](int i);
@@ -28,7 +31,7 @@ public:
 
 	// C++ Rule of Five
 	// Destructor
-	~Vector<T>() { delete[] internalArray; }
+	~Vector<T>() {}
 
 	// Copy Constructor
 	Vector<T>(const Vector<T>& other);
@@ -42,16 +45,25 @@ public:
 };
 
 template <class T>
-Vector<T>::Vector(const Vector<T>& other) {
+Vector<T>::Vector(const Vector<T>& other) 
+{
+	if (this == &other)
+		return;
+
 	internalSize = other.internalSize;
 	maxSize = other.maxSize;
 
 	internalArray = new T[maxSize];
-	memcpy(internalArray, other.internalArray, internalSize * sizeof(T));
+	for (int i = 0; i < internalSize; i++)
+		internalArray[i] = other.internalArray[i];
 }
 
 template <class T>
-Vector<T>::Vector(Vector<T>&& other) {
+Vector<T>::Vector(Vector<T>&& other) 
+{
+	if (this == &other)
+		return;
+
 	*this = std::move(other);
 	return *this;
 }
@@ -59,18 +71,24 @@ Vector<T>::Vector(Vector<T>&& other) {
 template <class T>
 Vector<T>& Vector<T>::operator=(const Vector<T>& other)
 {
+	if (this == &other)
+		return;
+
 	Vector<T> temporary(other);
 	*this = std::move(temporary);
 	return *this;
 }
 
 template <class T>
-Vector<T>& Vector<T>::operator=(Vector<T>&& other) {
+Vector<T>& Vector<T>::operator=(Vector<T>&& other) 
+{
+	if (this == &other)
+		return;
+
 	internalSize = other.internalSize;
 	maxSize = other.maxSize;
 
-	delete[] internalArray;
-	internalArray = other.internalArray;
+	internalArray.pointer = other.internalArray.pointer;
 
 	other.internalSize = 0;
 	other.maxSize = 0;
@@ -95,14 +113,13 @@ T Vector<T>::at(int i)
 template <class T>
 T Vector<T>::front()
 {
-	if (internalSize == 0) throw std::out_of_range("Vector is empty.");
-	return internalArray[0];
+	if(internalSize > 0) return internalArray[0];
 }
 
 template <class T>
 T Vector<T>::back()
 {
-	return internalArray[internalSize - 1];
+	if(internalSize > 0) return internalArray[internalSize - 1];
 }
 
 template <class T>
@@ -124,7 +141,8 @@ void Vector<T>::push_back(T data)
 template <class T>
 void Vector<T>::pop_back()
 {
-	internalSize--;
+	if(internalSize > 0) internalSize--;
+	
 }
 
 template <class T>
@@ -133,10 +151,10 @@ void Vector<T>::print()
 	std::cout << '{';
 	for (int i = 0; i < internalSize; ++i)
 	{
+		std::cout << internalArray[i];
+
 		if (i != internalSize - 1)
-			std::cout << internalArray[i] << ", ";
-		else
-			std::cout << internalArray[i];
+			std::cout << ", ";
 	}
 	std::cout << '}' << std::endl;
 }
@@ -157,11 +175,11 @@ template <class T>
 void Vector<T>::resize(int size)
 {
 	internalSize = std::min(size, internalSize);
-
 	T *newArray = new T[size];
-	memcpy(newArray, internalArray, internalSize * sizeof(T));
 
-	delete[] internalArray;
+	for (int i = 0; i < internalSize; ++i)
+		newArray[i] = internalArray[i];
+
 	maxSize = size;
 	internalArray = newArray;
 }
